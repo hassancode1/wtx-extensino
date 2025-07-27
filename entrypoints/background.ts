@@ -11,17 +11,37 @@ export default defineBackground(() => {
       active: true,
       currentWindow: true,
     });
+
+    if (!tab?.id) return;
+
     if (message === Messages.START_RECORDING) {
-      if (tab?.id) {
-        console.log("MESSAGE SENT TO ", tab);
-        browser.tabs.sendMessage(tab.id, { action: Messages.MOUNT_WIDGET });
+      console.log("MESSAGE SENT TO ", tab);
+      try {
+        await browser.tabs.sendMessage(tab.id, {
+          action: Messages.MOUNT_WIDGET,
+        });
+      } catch (error) {
+        console.error("Failed to send message:", error);
       }
     }
   };
+
+  (browser.action ?? browser.browserAction).onClicked.addListener(
+    async (tab) => {
+      console.log("browser action triggered,", tab);
+      if (tab.id) {
+        await browser.tabs.sendMessage(tab.id, {
+          action: Messages.MOUNT_WIDGET,
+        });
+      }
+    }
+  );
+
   browser.runtime.onMessage.addListener(
     (request: { action: Messages }, sender, sendResponse) => {
-      console.log(request, "MESSAGE RECIEVED IN BACKGROUND");
+      console.log(request, "MESSAGE RECEIVED IN BACKGROUND");
       handleMessage(request.action);
+      sendResponse({ received: true });
     }
   );
 });

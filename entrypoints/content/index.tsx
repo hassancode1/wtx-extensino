@@ -7,10 +7,7 @@ export default defineContentScript({
   cssInjectionMode: "ui",
 
   async main(ctx) {
-    browser.runtime.onMessage.addListener((msg) => {
-      console.log(msg, "MESSAGE RECIEVED TO CONTNET SCRIPT");
-    });
-    console.log("background");
+    console.log("Hello content script.");
     const ui = await createShadowRootUi(ctx, {
       name: "wxt-react-example",
       position: "inline",
@@ -30,6 +27,12 @@ export default defineContentScript({
       },
     });
 
-    ui.mount();
+    browser.runtime.onMessage.addListener((event) => {
+      console.log("MESSAGE RECIEVED");
+      if (event.action === "MOUNT_WIDGET") {
+        ui.mount();
+      }
+      return true;
+    });
   },
 });
