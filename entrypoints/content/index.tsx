@@ -15,6 +15,12 @@ export default defineContentScript({
       append: "first",
       onMount: (container) => {
         const wrapper = document.createElement("div");
+        Object.assign(wrapper.style, {
+          position: "fixed",
+          inset: "auto 0 0 0",
+          zIndex: "2147483647",
+          pointerEvents: "auto",
+        });
         container.append(wrapper);
 
         const root = ReactDOM.createRoot(wrapper);
@@ -28,7 +34,6 @@ export default defineContentScript({
     });
 
     browser.runtime.onMessage.addListener((event) => {
-      console.log("MESSAGE RECIEVED");
       if (event.action === "MOUNT_WIDGET") {
         ui.mount();
       }
