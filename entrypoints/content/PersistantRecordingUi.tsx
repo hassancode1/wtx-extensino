@@ -12,7 +12,7 @@ import {
   File,
 } from "lucide-react";
 
-type RecordingState = "initial" | "recording" | "paused" | "stopped";
+type RecordingState = "initial" | "recording" | "paused" | "stopped" | "review";
 
 interface Props {
   startRecording: () => void;
@@ -130,13 +130,12 @@ export default function PersistentRecordingUI(props: Props) {
           </div>
         </div>
 
-        {/* body */}
         <div className="flex-1 flex flex-col items-center justify-center p-6">
           <div className="text-3xl font-mono font-bold text-gray-800 mb-6">
             {formatTime(time)}
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex gap-3 w-full items-center justify-center">
             {recordingState === "recording" && (
               <button
                 onClick={pauseRecording}

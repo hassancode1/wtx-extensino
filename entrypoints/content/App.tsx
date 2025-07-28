@@ -1,8 +1,14 @@
 import { useState } from "react";
 import PersistentRecordingUI from "./PersistantRecordingUi";
+import { DoctorService } from "@/generated";
 
 const App = ({ patientName }: { patientName: string }) => {
-  type RecordingState = "initial" | "recording" | "paused" | "stopped";
+  type RecordingState =
+    | "initial"
+    | "recording"
+    | "paused"
+    | "stopped"
+    | "review";
   const [recordingState, setRecordingState] =
     useState<RecordingState>("initial");
   const [time, setTime] = useState(0);
@@ -10,6 +16,7 @@ const App = ({ patientName }: { patientName: string }) => {
   const streamRef = useRef<MediaStream | null>(null);
   const chunks = useRef<Blob[]>([]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const startTimer = () =>
     (timerRef.current = setInterval(() => setTime((t) => t + 1), 1000));
@@ -21,7 +28,7 @@ const App = ({ patientName }: { patientName: string }) => {
     stopTimer();
     setTime(0);
   };
-  console.log(chunks);
+
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -68,7 +75,34 @@ const App = ({ patientName }: { patientName: string }) => {
     }
     setRecordingState("stopped");
     stopTimer();
-    resetTimer();
+  };
+
+  const saveAndContinue = async () => {
+    if (!patientName.trim()) {
+      setIsSubmitting(true);
+      return;
+    }
+    const recordedBlob = new Blob(chunks.current, { type: "audio/webm" });
+    try {
+      const formData = new FormData();
+      formData.append("audio_file", recordedBlob);
+      formData.append("patient_name", patientName);
+
+      const payload = {
+        formData: {
+          patient_name: patientName,
+          audio_file: recordedBlob,
+        },
+      };
+      const response = await DoctorService.uploadAudioDoctorsUploadAudioPost(
+        payload
+      );
+
+      setRecordingState("review");
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
