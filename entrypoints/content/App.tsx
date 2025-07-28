@@ -2,7 +2,13 @@ import { useState } from "react";
 import PersistentRecordingUI from "./PersistantRecordingUi";
 import { DoctorService } from "@/generated";
 
-const App = ({ patientName }: { patientName: string }) => {
+const App = ({
+  patientName,
+  onClose,
+}: {
+  patientName: string;
+  onClose: () => void;
+}) => {
   type RecordingState =
     | "initial"
     | "recording"
@@ -121,6 +127,7 @@ const App = ({ patientName }: { patientName: string }) => {
         saveAndContinue={saveAndContinue}
         isSubmitting={isSubmitting}
         newRecording={newRecording}
+        onClose={onClose}
       />
     </>
   );

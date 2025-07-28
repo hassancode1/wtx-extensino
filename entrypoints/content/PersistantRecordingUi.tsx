@@ -28,6 +28,7 @@ interface Props {
   saveAndContinue?: () => void;
   newRecording?: () => void;
   isSubmitting?: boolean;
+  onClose?: () => void;
 }
 
 const formatTime = (s: number) =>
@@ -48,6 +49,7 @@ export default function PersistentRecordingUI(props: Props) {
     isSubmitting,
     newRecording,
     saveAndContinue,
+    onClose,
   } = props;
   const [loadingMessage, setLoadingMessage] = useState("");
   const [generatedNote, setGeneratedNote] = useState("");
@@ -205,8 +207,8 @@ Discussed headache triggers, importance of regular sleep schedule, and when to s
           </div>
           <div className="flex gap-1">
             <button
-              onClick={stopRecording}
-              className="text-green-600 hover:text-green-700"
+              onClick={onClose}
+              className="text-green-600 cursor-pointer hover:text-green-700"
             >
               <X size={14} />
             </button>
@@ -290,7 +292,7 @@ Discussed headache triggers, importance of regular sleep schedule, and when to s
               <button onClick={() => setIsMinimized(true)}>
                 <Minimize2 size={14} />
               </button>
-              <button onClick={stopRecording}>
+              <button onClick={onClose}>
                 <X size={14} />
               </button>
             </div>

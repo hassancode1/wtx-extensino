@@ -9,7 +9,7 @@ export default defineContentScript({
   async main(ctx) {
     console.log("Hello content script.");
     let patientName = "";
-    console.log(patientName);
+
     const ui = await createShadowRootUi(ctx, {
       name: "wxt-react-example",
       position: "inline",
@@ -26,7 +26,9 @@ export default defineContentScript({
         container.append(wrapper);
 
         const root = ReactDOM.createRoot(wrapper);
-        root.render(<App patientName={patientName} />);
+        root.render(
+          <App patientName={patientName} onClose={() => root.unmount()} />
+        );
         return { root, wrapper };
       },
       onRemove: (elements) => {
