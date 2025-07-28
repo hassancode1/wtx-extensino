@@ -8,7 +8,8 @@ export default defineContentScript({
 
   async main(ctx) {
     console.log("Hello content script.");
-
+    let patientName = "";
+    console.log(patientName);
     const ui = await createShadowRootUi(ctx, {
       name: "wxt-react-example",
       position: "inline",
@@ -25,7 +26,7 @@ export default defineContentScript({
         container.append(wrapper);
 
         const root = ReactDOM.createRoot(wrapper);
-        root.render(<App />);
+        root.render(<App patientName={patientName} />);
         return { root, wrapper };
       },
       onRemove: (elements) => {
@@ -36,6 +37,7 @@ export default defineContentScript({
 
     browser.runtime.onMessage.addListener((event) => {
       if (event.action === "MOUNT_WIDGET") {
+        patientName = event.patientName ?? "";
         ui.mount();
       }
       return true;

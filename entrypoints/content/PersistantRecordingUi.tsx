@@ -1,6 +1,16 @@
-// PersistentRecordingUI.tsx
 import { useState } from "react";
-import { Play, Pause, Square, Minimize2, Maximize2, X } from "lucide-react";
+import Lottie from "lottie-react";
+import loader from "@/assets/loader.json";
+import {
+  Play,
+  Pause,
+  Square,
+  Minimize2,
+  Maximize2,
+  X,
+  RotateCcw,
+  File,
+} from "lucide-react";
 
 type RecordingState = "initial" | "recording" | "paused" | "stopped";
 
@@ -11,6 +21,7 @@ interface Props {
   pauseRecording: () => void;
   time: number;
   recordingState: RecordingState;
+  patientName: string;
 }
 
 const formatTime = (s: number) =>
@@ -27,11 +38,28 @@ export default function PersistentRecordingUI(props: Props) {
     pauseRecording,
     time,
     recordingState,
+    patientName,
   } = props;
   const [isMinimized, setIsMinimized] = useState(false);
-  const [patientName, setPatientName] = useState("");
 
   if (recordingState === "initial") startRecording();
+
+  {
+    if (recordingState === "initial") {
+      return (
+        <div className="fixed bottom-4 left-4 z-50 font-sans">
+          <div className="w-80 h-[300px] bg-white rounded-lg shadow-lg border border-gray-200 flex flex-col justify-center items-center mx-auto">
+            <Lottie
+              autoplay
+              loop
+              animationData={loader}
+              style={{ width: 120, height: 120 }}
+            />
+          </div>
+        </div>
+      );
+    }
+  }
 
   if (isMinimized) {
     return (
@@ -125,12 +153,24 @@ export default function PersistentRecordingUI(props: Props) {
                 <Play size={16} /> Resume
               </button>
             )}
-            <button
-              onClick={stopRecording}
-              className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md text-sm"
-            >
-              <Square size={16} /> Stop
-            </button>
+            {(recordingState === "recording" ||
+              recordingState === "paused") && (
+              <button
+                onClick={stopRecording}
+                className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md text-sm"
+              >
+                <Square size={16} /> Stop
+              </button>
+            )}
+            {recordingState === "stopped" && (
+              <button
+                onClick={stopRecording}
+                className="flex items-center justify-center gap-2 px-6 w-full py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm"
+              >
+                <File size={16} />
+                Save
+              </button>
+            )}
           </div>
         </div>
       </div>

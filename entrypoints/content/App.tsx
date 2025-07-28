@@ -1,12 +1,11 @@
 import { useState } from "react";
 import PersistentRecordingUI from "./PersistantRecordingUi";
 
-const App = () => {
+const App = ({ patientName }: { patientName: string }) => {
   type RecordingState = "initial" | "recording" | "paused" | "stopped";
   const [recordingState, setRecordingState] =
     useState<RecordingState>("initial");
   const [time, setTime] = useState(0);
-
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const chunks = useRef<Blob[]>([]);
@@ -81,6 +80,7 @@ const App = () => {
         time={time}
         recordingState={recordingState}
         pauseRecording={pauseRecording}
+        patientName={patientName}
       />
     </>
   );

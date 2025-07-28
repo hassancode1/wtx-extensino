@@ -10,8 +10,8 @@ const RecordPage = () => {
   const handleRecord = () => {
     browser.runtime.sendMessage({
       action: "MOUNT_WIDGET",
+      patientName: patientName,
     });
-    console.log("start recording");
   };
 
   return (

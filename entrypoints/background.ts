@@ -7,7 +7,7 @@ export default defineBackground(() => {
     MOUNT_WIDGET = "MOUNT_WIDGET",
   }
 
-  const handleMessage = async (message: Messages) => {
+  const handleMessage = async (message: Messages, patientName: string) => {
     const [tab] = await browser.tabs.query({
       active: true,
       currentWindow: true,
@@ -18,14 +18,20 @@ export default defineBackground(() => {
     if (message === Messages.MOUNT_WIDGET) {
       await browser.tabs.sendMessage(tab.id, {
         action: Messages.MOUNT_WIDGET,
+        patientName: patientName,
       });
     }
   };
 
   browser.runtime.onMessage.addListener(
-    (request: { action: Messages }, sender, sendResponse) => {
+    (
+      request: { action: Messages; patientName: string },
+      sender,
+      sendResponse
+    ) => {
       console.log(request, "MESSAGE RECEIVED IN BACKGROUND");
-      handleMessage(request.action);
+
+      handleMessage(request.action, request.patientName);
       sendResponse({ received: true });
     }
   );
