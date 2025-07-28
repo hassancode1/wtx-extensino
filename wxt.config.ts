@@ -14,5 +14,8 @@ export default defineConfig({
   }),
   manifest: {
     permissions: ["activeTab", "audioCapture"],
+    name: "SaasPro App",
+    description: "A Chome extension that helps you record clinical notes",
+    icons: { 32: "icon/icon32.png" },
   },
 });
