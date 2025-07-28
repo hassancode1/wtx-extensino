@@ -9,7 +9,7 @@ const RecordPage = () => {
 
   const handleRecord = () => {
     browser.runtime.sendMessage({
-      action: "START_RECORDING",
+      action: "MOUNT_WIDGET",
     });
     console.log("start recording");
   };

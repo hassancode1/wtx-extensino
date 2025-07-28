@@ -8,6 +8,7 @@ export default defineContentScript({
 
   async main(ctx) {
     console.log("Hello content script.");
+
     const ui = await createShadowRootUi(ctx, {
       name: "wxt-react-example",
       position: "inline",

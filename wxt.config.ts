@@ -12,4 +12,7 @@ export default defineConfig({
       },
     },
   }),
+  manifest: {
+    permissions: ["activeTab", "audioCapture"],
+  },
 });

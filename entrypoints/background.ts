@@ -3,6 +3,7 @@ export default defineBackground(() => {
 
   enum Messages {
     START_RECORDING = "START_RECORDING",
+    STOP_RECORDING = "STOP_RECORDING",
     MOUNT_WIDGET = "MOUNT_WIDGET",
   }
 
@@ -14,28 +15,12 @@ export default defineBackground(() => {
 
     if (!tab?.id) return;
 
-    if (message === Messages.START_RECORDING) {
-      console.log("MESSAGE SENT TO ", tab);
-      try {
-        await browser.tabs.sendMessage(tab.id, {
-          action: Messages.MOUNT_WIDGET,
-        });
-      } catch (error) {
-        console.error("Failed to send message:", error);
-      }
+    if (message === Messages.MOUNT_WIDGET) {
+      await browser.tabs.sendMessage(tab.id, {
+        action: Messages.MOUNT_WIDGET,
+      });
     }
   };
-
-  (browser.action ?? browser.browserAction).onClicked.addListener(
-    async (tab) => {
-      console.log("browser action triggered,", tab);
-      if (tab.id) {
-        await browser.tabs.sendMessage(tab.id, {
-          action: Messages.MOUNT_WIDGET,
-        });
-      }
-    }
-  );
 
   browser.runtime.onMessage.addListener(
     (request: { action: Messages }, sender, sendResponse) => {
