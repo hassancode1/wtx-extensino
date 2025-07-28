@@ -10,8 +10,10 @@ const App = ({ patientName }: { patientName: string }) => {
     | "stopped"
     | "review";
   const [recordingState, setRecordingState] =
-    useState<RecordingState>("initial");
+    useState<RecordingState>("review");
   const [time, setTime] = useState(0);
+  const [transcript, setTranscript] = useState("");
+  const [error, setError] = useState("");
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const chunks = useRef<Blob[]>([]);
@@ -77,31 +79,32 @@ const App = ({ patientName }: { patientName: string }) => {
     stopTimer();
   };
 
+  const newRecording = () => {
+    resetTimer();
+    startRecording();
+    setTranscript("");
+  };
   const saveAndContinue = async () => {
-    if (!patientName.trim()) {
-      setIsSubmitting(true);
-      return;
-    }
-    const recordedBlob = new Blob(chunks.current, { type: "audio/webm" });
+    setIsSubmitting(true);
+    setError("");
     try {
+      const audioBlob = new Blob(chunks.current, { type: "audio/webm" });
+
       const formData = new FormData();
-      formData.append("audio_file", recordedBlob);
+      formData.append("audio_file", audioBlob);
       formData.append("patient_name", patientName);
 
-      const payload = {
-        formData: {
-          patient_name: patientName,
-          audio_file: recordedBlob,
-        },
-      };
-      const response = await DoctorService.uploadAudioDoctorsUploadAudioPost(
-        payload
-      );
+      const res = await DoctorService.uploadAudioDoctorsUploadAudioPost({
+        formData,
+      });
 
+      // setTranscript(res.transcript || "");
+      console.log(res);
       setRecordingState("review");
-      console.log(response);
-    } catch (error) {
-      console.log(error);
+    } catch (e: any) {
+      setError(e?.message || "Upload failed");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -115,6 +118,9 @@ const App = ({ patientName }: { patientName: string }) => {
         recordingState={recordingState}
         pauseRecording={pauseRecording}
         patientName={patientName}
+        saveAndContinue={saveAndContinue}
+        isSubmitting={isSubmitting}
+        newRecording={newRecording}
       />
     </>
   );

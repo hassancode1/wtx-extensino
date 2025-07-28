@@ -1,17 +1,61 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
 import { Input } from "@/components/ui/input";
 import { Mic, User, Activity } from "lucide-react";
 
 const RecordPage = () => {
   const [patientName, setPatientName] = useState("");
-  // const [isRecording, setIsRecording] = useState(false);
 
-  const handleRecord = () => {
-    browser.runtime.sendMessage({
-      action: "MOUNT_WIDGET",
-      patientName: patientName,
-    });
+  const handleRecord = async () => {
+    try {
+      const [tab] = await browser.tabs.query({
+        active: true,
+        currentWindow: true,
+      });
+
+      if (!tab || tab.id === undefined || !tab.url) {
+        console.error(
+          "No active tab found, tab ID is undefined, or URL is missing."
+        );
+        toast.error(
+          "Cannot start recording: No active tab or invalid tab information."
+        );
+        return;
+      }
+      const tabUrl = tab.url;
+      if (
+        tabUrl.startsWith("chrome://") ||
+        tabUrl.startsWith("about:") ||
+        tabUrl.startsWith("edge://") ||
+        tabUrl.startsWith("moz-extension://") ||
+        tabUrl.startsWith("brave://") ||
+        tabUrl.startsWith("vivaldi://") ||
+        tabUrl.startsWith("file:///")
+      ) {
+        toast.error("Cannot record on internal browser pages or local files.");
+        return;
+      }
+
+      if (
+        tabUrl.includes("chrome.google.com/webstore") ||
+        tabUrl.includes("addons.mozilla.org")
+      ) {
+        console.warn(
+          `Cannot record on browser extension store page: ${tabUrl}`
+        );
+        toast.error("Cannot record on browser extension store pages.");
+        return;
+      }
+
+      await browser.runtime.sendMessage({
+        action: "MOUNT_WIDGET",
+        patientName: patientName,
+      });
+    } catch (error) {
+      console.error("Error sending MOUNT_WIDGET message:", error);
+      toast.error("Failed to start recording. Please try again.");
+    }
   };
 
   return (
